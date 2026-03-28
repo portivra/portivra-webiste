@@ -31,14 +31,7 @@ export const metadata = {
       "Get expert assistance for company registration, GST filing, PF, ESI, and all tax-related services.",
     url: "https://portivra.com",
     siteName: "Portivra",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Portivra - Business Compliance Services",
-      },
-    ],
+
     locale: "en_IN",
     type: "website",
   },
@@ -49,12 +42,7 @@ export const metadata = {
       "Get expert assistance for company registration, GST filing, PF, ESI, and all tax-related services.",
     images: ["/twitter-image.jpg"],
   },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
-  // manifest: "/manifest.json",
+
   verification: {
     google: "your-google-verification-code",
   },

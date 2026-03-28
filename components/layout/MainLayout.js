@@ -83,7 +83,7 @@ const MainLayout = ({ children }) => {
           pb: 4,
         }}
       >
-        <Container maxWidth="xl">{children}</Container>
+        <Box>{children}</Box>
       </Box>
 
       {/* Desktop Footer */}

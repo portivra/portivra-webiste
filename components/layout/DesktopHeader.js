@@ -27,6 +27,7 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Tooltip,
 } from "@mui/material";
 import {
   ShoppingCart,
@@ -48,6 +49,8 @@ import {
   KeyboardArrowDown,
   KeyboardArrowRight,
   Close,
+  Verified,
+  Search,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { companyInfo } from "../../data/companyInfo";
@@ -58,16 +61,30 @@ const DesktopHeader = ({ isScrolled }) => {
   const router = useRouter();
 
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [megaMenuOffset, setMegaMenuOffset] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  const megaMenuRef = useRef(null);
   const servicesButtonRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   const isLoggedIn = false; // Replace with actual auth state
   const userName = "Kausik"; // Replace with actual user name
 
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
   const handleMegaMenuOpen = () => {
+    if (servicesButtonRef.current) {
+      const btnRect = servicesButtonRef.current.getBoundingClientRect();
+      const centerX = btnRect.left + btnRect.width / 2;
+      setMegaMenuOffset(window.innerWidth / 2 - centerX);
+    }
     setMegaMenuOpen(true);
     setSelectedCategory(serviceCategories[0]);
   };
@@ -94,6 +111,15 @@ const DesktopHeader = ({ isScrolled }) => {
     setUserMenuAnchor(null);
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+      setSearchOpen(false);
+      setSearchValue("");
+    }
+  };
+
   const navItems = [
     { label: "Home", path: "/", icon: null },
     { label: "Services", path: "#", icon: null, hasMegaMenu: true },
@@ -118,44 +144,96 @@ const DesktopHeader = ({ isScrolled }) => {
     <>
       <AppBar
         position="fixed"
-        elevation={isScrolled ? 4 : 0}
+        elevation={0}
         sx={{
           background: isScrolled
             ? "rgba(255, 255, 255, 0.98)"
             : "rgba(255, 255, 255, 0.95)",
           backdropFilter: "blur(20px)",
           transition: "all 0.3s ease",
-          borderBottom: isScrolled ? "1px solid rgba(0,0,0,0.05)" : "none",
-          boxShadow: isScrolled ? "0 4px 30px rgba(0,0,0,0.05)" : "none",
+          borderBottom: isScrolled
+            ? "1px solid rgba(0,0,0,0.05)"
+            : "1px solid rgba(0,0,0,0.03)",
+          boxShadow: isScrolled
+            ? "0 4px 30px rgba(0,0,0,0.05)"
+            : "0 1px 0 rgba(0,0,0,0.03)",
         }}
       >
         <Container maxWidth="xl">
           <Toolbar
             disableGutters
-            sx={{ justifyContent: "space-between", height: "80px" }}
+            sx={{ justifyContent: "space-between", height: "70px" }}
           >
-            {/* Logo with Animation */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => router.push("/")}
-            >
-              <Image
-                src="/color-logo.png"
-                width={266}
-                height={50}
-                alt="logo-color"
-              />
-            </motion.div>
+            {/* Logo Section with ISO Badge */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                onClick={() => router.push("/")}
+              >
+                <Image
+                  src="/color-logo.png"
+                  width={180}
+                  height={40}
+                  alt="logo-color"
+                  style={{ height: "auto", width: "auto" }}
+                  priority
+                />
+              </motion.div>
+
+              {/* ISO 9001:2015 Badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Tooltip
+                  title="ISO 9001:2015 Certified"
+                  arrow
+                  placement="bottom"
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: "50px",
+                      background:
+                        "linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Verified sx={{ fontSize: 16, color: "#2E7D32" }} />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.7rem",
+                        letterSpacing: "0.5px",
+                        background:
+                          "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
+                        backgroundClip: "text",
+                        WebkitBackgroundClip: "text",
+                        color: "transparent",
+                      }}
+                    >
+                      ISO 9001:2015
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              </motion.div>
+            </Box>
 
             {/* Navigation Links */}
-            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
               {navItems.map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -171,6 +249,7 @@ const DesktopHeader = ({ isScrolled }) => {
                       endIcon={
                         <KeyboardArrowDown
                           sx={{
+                            fontSize: 18,
                             transition: "transform 0.3s ease",
                             transform: megaMenuOpen
                               ? "rotate(180deg)"
@@ -184,25 +263,16 @@ const DesktopHeader = ({ isScrolled }) => {
                             ? "primary.main"
                             : "text.primary",
                         fontWeight: router.pathname === item.path ? 600 : 500,
+                        fontSize: "0.9rem",
                         px: 2,
                         py: 1,
-                        borderRadius: "12px",
+                        borderRadius: "40px",
+                        textTransform: "none",
                         position: "relative",
-                        overflow: "hidden",
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 0,
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          width: "0%",
-                          height: "2px",
-                          background:
-                            "linear-gradient(90deg, #667eea, #764ba2)",
-                          transition: "width 0.3s ease",
-                        },
-                        "&:hover::before": {
-                          width: "80%",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          background: "rgba(102,126,234,0.08)",
+                          transform: "translateY(-1px)",
                         },
                       }}
                     >
@@ -217,25 +287,15 @@ const DesktopHeader = ({ isScrolled }) => {
                             ? "primary.main"
                             : "text.primary",
                         fontWeight: router.pathname === item.path ? 600 : 500,
+                        fontSize: "0.9rem",
                         px: 2,
                         py: 1,
-                        borderRadius: "12px",
-                        position: "relative",
-                        overflow: "hidden",
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 0,
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          width: "0%",
-                          height: "2px",
-                          background:
-                            "linear-gradient(90deg, #667eea, #764ba2)",
-                          transition: "width 0.3s ease",
-                        },
-                        "&:hover::before": {
-                          width: "80%",
+                        borderRadius: "40px",
+                        textTransform: "none",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          background: "rgba(102,126,234,0.08)",
+                          transform: "translateY(-1px)",
                         },
                       }}
                     >
@@ -246,40 +306,60 @@ const DesktopHeader = ({ isScrolled }) => {
               ))}
             </Box>
 
-            {/* Right Section */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {/* Right Section - Action Icons */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              {/* Search Button */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Tooltip title="Search" arrow>
+                  <IconButton
+                    onClick={() => setSearchOpen(!searchOpen)}
+                    sx={{
+                      color: "text.primary",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        background: "rgba(102,126,234,0.1)",
+                        transform: "scale(1.05)",
+                      },
+                    }}
+                  >
+                    <Search />
+                  </IconButton>
+                </Tooltip>
+              </motion.div>
+
               {/* User Menu */}
               {isLoggedIn ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <Box
                     onClick={handleUserMenuOpen}
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 1.5,
+                      gap: 1,
                       cursor: "pointer",
-                      p: 1,
-                      borderRadius: "50px",
-                      background: isScrolled
-                        ? "rgba(0,0,0,0.02)"
-                        : "transparent",
+                      ml: 1,
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: "40px",
                       transition: "all 0.3s ease",
                       "&:hover": {
                         background: "rgba(102,126,234,0.1)",
-                        transform: "translateY(-2px)",
                       },
                     }}
                   >
                     <Avatar
                       sx={{
-                        width: 40,
-                        height: 40,
+                        width: 36,
+                        height: 36,
                         background: "linear-gradient(135deg, #667eea, #764ba2)",
-                        cursor: "pointer",
                       }}
                     >
                       {userName.charAt(0)}
@@ -291,12 +371,6 @@ const DesktopHeader = ({ isScrolled }) => {
                       >
                         Hi, {userName}
                       </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{ color: "text.secondary" }}
-                      >
-                        Welcome back
-                      </Typography>
                     </Box>
                   </Box>
 
@@ -307,12 +381,10 @@ const DesktopHeader = ({ isScrolled }) => {
                     TransitionComponent={Grow}
                     PaperProps={{
                       sx: {
-                        mt: 1.5,
+                        mt: 1,
                         borderRadius: "20px",
-                        minWidth: 280,
+                        minWidth: 260,
                         boxShadow: "0 20px 40px rgba(0,0,0,0.12)",
-                        background: "rgba(255,255,255,0.98)",
-                        backdropFilter: "blur(10px)",
                         overflow: "hidden",
                       },
                     }}
@@ -321,7 +393,7 @@ const DesktopHeader = ({ isScrolled }) => {
                       sx={{
                         p: 2,
                         background:
-                          "linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%)",
+                          "linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)",
                       }}
                     >
                       <Box
@@ -338,7 +410,7 @@ const DesktopHeader = ({ isScrolled }) => {
                           {userName.charAt(0)}
                         </Avatar>
                         <Box>
-                          <Typography variant="subtitle1" fontWeight={600}>
+                          <Typography variant="subtitle2" fontWeight={700}>
                             {userName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
@@ -353,36 +425,36 @@ const DesktopHeader = ({ isScrolled }) => {
                         router.push("/dashboard");
                         handleUserMenuClose();
                       }}
-                      sx={{ py: 1.5 }}
+                      sx={{ py: 1.2 }}
                     >
                       <ListItemIcon>
                         <Dashboard fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText>Dashboard</ListItemText>
+                      <ListItemText primary="Dashboard" />
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
                         router.push("/bookings");
                         handleUserMenuClose();
                       }}
-                      sx={{ py: 1.5 }}
+                      sx={{ py: 1.2 }}
                     >
                       <ListItemIcon>
                         <BookmarkBorder fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText>My Bookings</ListItemText>
+                      <ListItemText primary="My Bookings" />
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
                         router.push("/profile");
                         handleUserMenuClose();
                       }}
-                      sx={{ py: 1.5 }}
+                      sx={{ py: 1.2 }}
                     >
                       <ListItemIcon>
                         <Settings fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText>Profile Settings</ListItemText>
+                      <ListItemText primary="Profile Settings" />
                     </MenuItem>
                     <Divider />
                     <MenuItem
@@ -390,23 +462,23 @@ const DesktopHeader = ({ isScrolled }) => {
                         router.push("/help");
                         handleUserMenuClose();
                       }}
-                      sx={{ py: 1.5 }}
+                      sx={{ py: 1.2 }}
                     >
                       <ListItemIcon>
                         <Help fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText>Help & Support</ListItemText>
+                      <ListItemText primary="Help & Support" />
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
                         handleUserMenuClose();
                       }}
-                      sx={{ py: 1.5, color: "error.main" }}
+                      sx={{ py: 1.2, color: "error.main" }}
                     >
                       <ListItemIcon>
                         <Logout fontSize="small" sx={{ color: "error.main" }} />
                       </ListItemIcon>
-                      <ListItemText>Logout</ListItemText>
+                      <ListItemText primary="Logout" />
                     </MenuItem>
                   </Menu>
                 </motion.div>
@@ -414,24 +486,26 @@ const DesktopHeader = ({ isScrolled }) => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <Button
                     variant="contained"
                     startIcon={<Person />}
                     onClick={() => router.push("/login")}
                     sx={{
-                      borderRadius: "50px",
-                      px: 3,
-                      py: 1,
+                      borderRadius: "40px",
+                      px: 2.5,
+                      py: 0.8,
+                      ml: 1,
                       background:
                         "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                      boxShadow: "0 4px 15px rgba(102,126,234,0.3)",
+                      boxShadow: "0 4px 12px rgba(102,126,234,0.25)",
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
                       "&:hover": {
                         transform: "translateY(-2px)",
-                        boxShadow: "0 8px 25px rgba(102,126,234,0.4)",
-                        background:
-                          "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
+                        boxShadow: "0 6px 20px rgba(102,126,234,0.35)",
                       },
                     }}
                   >
@@ -441,21 +515,99 @@ const DesktopHeader = ({ isScrolled }) => {
               )}
             </Box>
           </Toolbar>
+
+          {/* Search Bar Expanded */}
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Box
+                  component="form"
+                  onSubmit={handleSearchSubmit}
+                  sx={{
+                    pb: 2,
+                    pt: 1,
+                    borderTop: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      background: "rgba(0,0,0,0.02)",
+                      borderRadius: "60px",
+                      p: 0.5,
+                      pl: 2,
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Search sx={{ color: "text.secondary" }} />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      placeholder="Search for services, blogs, or FAQs..."
+                      style={{
+                        flex: 1,
+                        border: "none",
+                        background: "transparent",
+                        outline: "none",
+                        fontSize: "0.95rem",
+                        padding: "10px 0",
+                      }}
+                    />
+                    {searchValue && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setSearchValue("")}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    )}
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        borderRadius: "40px",
+                        background: "linear-gradient(135deg, #667eea, #764ba2)",
+                        textTransform: "none",
+                        px: 3,
+                      }}
+                    >
+                      Search
+                    </Button>
+                  </Box>
+                </Box>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Container>
       </AppBar>
 
-      {/* Mega Menu */}
+      {/* Mega Menu - Keeping the excellent design unchanged */}
       <Popper
         open={megaMenuOpen}
         anchorEl={servicesButtonRef.current}
-        placement="bottom-start"
+        placement="bottom"
         transition
         disablePortal
         modifiers={[
           {
             name: "offset",
             options: {
-              offset: [0, 0],
+              offset: [megaMenuOffset, 8],
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              padding: 8,
             },
           },
         ]}

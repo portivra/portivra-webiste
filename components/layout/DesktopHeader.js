@@ -146,6 +146,7 @@ const DesktopHeader = ({ isScrolled }) => {
         position="fixed"
         elevation={0}
         sx={{
+          mb: 0,
           background: isScrolled
             ? "rgba(255, 255, 255, 0.98)"
             : "rgba(255, 255, 255, 0.95)",

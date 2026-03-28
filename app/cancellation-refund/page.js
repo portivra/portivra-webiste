@@ -26,6 +26,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Avatar,
+} from "@mui/material";
+import {
   Timeline,
   TimelineItem,
   TimelineSeparator,
@@ -33,8 +36,7 @@ import {
   TimelineContent,
   TimelineDot,
   TimelineOppositeContent,
-  Avatar,
-} from "@mui/material";
+} from "@mui/lab";
 import {
   Cancel,
   AccountBalance,
@@ -49,7 +51,7 @@ import {
   CreditCard,
   AssignmentLate,
   Payment,
-  Dispute,
+  DisplaySettingsOutlined,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { companyInfo } from "@/data/companyInfo";
@@ -137,7 +139,7 @@ Except in the case of admin-initiated cancellation, no refunds will be issued un
     {
       id: "dispute-resolution",
       title: "5. Dispute Resolution and Special Cases",
-      icon: <Dispute />,
+      icon: <DisplaySettingsOutlined />,
       content: `We understand that exceptional circumstances may arise. For special cases and disputes:
 
 • Each case will be reviewed on its individual merits
